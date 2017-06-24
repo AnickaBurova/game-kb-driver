@@ -3,13 +3,12 @@ use std::io::Result;
 use std::fs::File;
 use std::io::{Read, Error, ErrorKind};
 use std::convert::From;
+use std::collections::HashMap;
 
 
 #[derive(Debug, PartialEq, Serialize, Deserialize)]
 pub struct DeviceMap {
     pub name: String,
-    pub vendor_id: u16,
-    pub product_id: u16,
     pub key: Vec<Key>,
 }
 
@@ -21,7 +20,7 @@ pub struct Key {
 }
 
 impl DeviceMap {
-    pub fn read_file(file_path: &str) -> Result<Vec<DeviceMap>> {
+    pub fn read_file(file_path: &str) -> Result<HashMap<u32, DeviceMap>> {
         let mut file = File::open(file_path)?;
         match serde_yaml::from_reader(&mut file) {
             Ok(value) => Ok(value),
