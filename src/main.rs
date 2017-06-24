@@ -7,6 +7,7 @@ extern crate serde_derive;
 extern crate serde_yaml;
 
 mod device_mapping;
+mod device;
 
 
 use std::error::Error;
@@ -36,8 +37,8 @@ fn bits(mask: u8, indices: &mut [u8]) -> u8 {
 }
 
 fn main() {
-    let devices = DeviceMap::read_file("devices.yaml").unwrap();
-    println!("{:?}", devices);
+    let mut mappings = DeviceMap::read_file("devices.yaml").unwrap();
+    println!("{:?}", mappings);
 
     let mut context = libusb::Context::new().unwrap();
 
@@ -45,6 +46,13 @@ fn main() {
 
     for mut device in context.devices().unwrap().iter() {
         let device_desc = device.device_descriptor().unwrap();
+        let key = ((device_desc.vendor_id() as u32) << 16) + (device_desc.product_id() as u32);
+
+        match mappings.remove(&key) {
+            Some(mapping) => {
+            }
+            None => (),
+        };
 
         if device_desc.vendor_id() == 0x46d && device_desc.product_id() == 0xc21c {
             println!("Bus {:03} Device {:03} ID {:04x}:{:04x}",
