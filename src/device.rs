@@ -10,9 +10,6 @@ pub struct Device<'a> {
     handle: DeviceHandle<'a>,
 }
 
-macro_rules! try {
-    ($e: expr) => ( $e.map_err(|err| Error::new(ErrorKind::Other, err))?)
-}
 
 
 impl<'a> Device<'a> {
@@ -46,7 +43,7 @@ impl<'a> Device<'a> {
                             }
                         }
                     }
-                    let handle = try!(device.open());
+                    let handle = iotry!(device.open());
                     devices.push(
                         Ok(Device {
                             mapping,

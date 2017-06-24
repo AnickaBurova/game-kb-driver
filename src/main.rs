@@ -6,17 +6,20 @@ extern crate yaml_rust;
 extern crate serde_derive;
 extern crate serde_yaml;
 
+#[macro_use]
+mod macros;
 mod device_mapping;
 mod device;
 
 
-use std::error::Error;
+use std::error::{Error};
 use hex_utils::{Format, xxd_str};
 use std::time::Duration;
 use libxdo::XDo;
 use std::char;
 
 use device_mapping::DeviceMap;
+
 
 fn bits(mask: u8, indices: &mut [u8]) -> u8 {
     let mut val = mask;
