@@ -1,6 +1,6 @@
 [package]
 name = "lg-driver"
-version = "0.1.2"
+version = "0.1.3"
 authors = ["Anicka Burova <anicka.burova@gmail.com>"]
 
 [dependencies]
@@ -11,5 +11,6 @@ yaml-rust = "*"
 serde = "0.9"
 serde_derive = "0.9"
 serde_yaml = "0.6"
+
 
 
