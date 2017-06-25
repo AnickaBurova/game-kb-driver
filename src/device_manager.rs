@@ -2,7 +2,6 @@ use std::io::{Result, Error, ErrorKind};
 use std::collections::HashMap;
 use std::sync::mpsc::{Sender, Receiver};
 use std::sync::mpsc;
-use std::thread::JoinHandle;
 use std::{thread, time};
 use rand::{self,Rng};
 use rand::distributions::{IndependentSample, Range};
@@ -11,6 +10,7 @@ use libusb::{Context, Direction};
 
 use device_mapping::DeviceMap;
 use input::Input;
+use device_input::DeviceInput;
 
 
 pub struct DeviceManager {
@@ -56,7 +56,7 @@ impl DeviceManager {
         }
         println!("Finding devices");
         // search for new devices, which are not yet mapped
-        for mut device in self.context.devices().unwrap().iter() {
+        for mut device in iotry!(self.context.devices()).iter() {
             let address = ((device.bus_number() as u16) << 8) + (device.address() as u16);
             if self.mapped.contains(&address) {
                 continue; // this address is already mapped
@@ -67,62 +67,69 @@ impl DeviceManager {
             let key = ((device_desc.vendor_id() as u32) << 16) + (device_desc.product_id() as u32);
 
             let mapping = match self.mapping.get(&key) {
-                Some(mapping) => mapping,
+                Some(ref mapping) => (*mapping).clone(),
                 None => {
                     continue;
                 }
             };
             // find input interface
             let cfg = iotry!(device.active_config_descriptor());
-            let mut ep = None;
+            let mut ok = false;
             for interface in cfg.interfaces() {
                 for desc in interface.descriptors() {
                     for endpoint in desc.endpoint_descriptors() {
                         if endpoint.direction() == Direction::In && endpoint.max_packet_size() == mapping.packet_size {
-                            ep = Some((interface.number(), endpoint.number(), endpoint.transfer_type()));
+                            ok = true;
                             break;
                         }
                     }
                 }
             }
 
-            if ep.is_none() {
+            if !ok {
                 println!("Device {} has no compatible endpoint",mapping.name);
                 continue;
             }
 
-            let handle = iotry!(device.open());
+            //let handle = iotry!(device.open());
             self.mapped.push(address);
 
             let input_sender = self.input_sender.clone();
             let finished_sender = self.finished_sender.clone();
+            let bus_number = device.bus_number();
+            let dev_address = device.address();
             thread::spawn(move || {
                 println!("Running devices at {}", address);
-                let ep = ep.unwrap();
-                println!("active config: {}", handle.active_configuration().unwrap());
-                if handle.kernel_driver_active(0).unwrap() {
-                    let _ = handle.detach_kernel_driver(0).unwrap();
-                }
-                let _ = handle.claim_interface(0).unwrap();
-                let key = rand::random::<u16>();
-                println!("Key {} down", key);
-                match input_sender.send(Input::KeyDown(key)) {
+                match DeviceInput::run(bus_number, dev_address, mapping, input_sender) {
                     Ok(_) => {},
                     Err(err) => {
-                        println!("Failed to send: {}", err);
+                        println!("Failed to run device input: {}", err);
                     }
                 }
-                let mut rng = rand::thread_rng();
-                let sleep_interval = Range::new(4,10);
-                let sleep = sleep_interval.ind_sample(&mut rng);
-                thread::sleep(time::Duration::from_secs(sleep));
-                println!("Key {} up", key);
-                match input_sender.send(Input::KeyUp(key)) {
-                    Ok(_) => {},
-                    Err(err) => {
-                        println!("Failed to send: {}", err);
-                    }
-                }
+                //println!("active config: {}", handle.active_configuration().unwrap());
+                //if handle.kernel_driver_active(0).unwrap() {
+                    //let _ = handle.detach_kernel_driver(0).unwrap();
+                //}
+                //let _ = handle.claim_interface(0).unwrap();
+                //let key = rand::random::<u16>();
+                //println!("Key {} down", key);
+                //match input_sender.send(Input::KeyDown(key)) {
+                    //Ok(_) => {},
+                    //Err(err) => {
+                        //println!("Failed to send: {}", err);
+                    //}
+                //}
+                //let mut rng = rand::thread_rng();
+                //let sleep_interval = Range::new(4,10);
+                //let sleep = sleep_interval.ind_sample(&mut rng);
+                //thread::sleep(time::Duration::from_secs(sleep));
+                //println!("Key {} up", key);
+                //match input_sender.send(Input::KeyUp(key)) {
+                    //Ok(_) => {},
+                    //Err(err) => {
+                        //println!("Failed to send: {}", err);
+                    //}
+                //}
                 finished_sender.send(address).unwrap();
             });
         }

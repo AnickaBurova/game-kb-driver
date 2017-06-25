@@ -10,6 +10,7 @@ extern crate rand;
 #[macro_use]
 mod macros;
 mod device_manager;
+mod device_input;
 mod device_mapping;
 mod device;
 mod input;
@@ -50,7 +51,7 @@ fn main() {
     let mappings = DeviceMap::read_file("devices.yaml").unwrap();
     println!("{:?}", mappings);
 
-    let mut device_manager = match DeviceManager::new(mappings) {
+    let mut device_manager: DeviceManager = match DeviceManager::new(mappings) {
         Ok(value) => value,
         Err(err) => {
             println!("Failed to create manager: {}", err);

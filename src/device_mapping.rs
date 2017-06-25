@@ -6,14 +6,14 @@ use std::convert::From;
 use std::collections::HashMap;
 
 
-#[derive(Debug, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct DeviceMap {
     pub name: String,
     pub packet_size: u16,
     pub key: Vec<Key>,
 }
 
-#[derive(Debug, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct Key {
     pub name: String,
     pub index: u8,
