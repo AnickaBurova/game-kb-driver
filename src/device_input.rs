@@ -1,8 +1,9 @@
 
 use std::io::{Result, Error, ErrorKind};
 use std::sync::mpsc::{Sender};
+use std::time::Duration;
 
-use libusb::{Context, Direction, TransferType};
+use libusb::{self,Context, Direction, TransferType};
 
 use device_mapping::DeviceMap;
 use input::Input;
@@ -46,7 +47,33 @@ impl DeviceInput {
             break;
         }
         match (handle, iet) {
-            (Some(handle), Some((i,e,t))) => {
+            (Some(mut handle), Some((i,e,t))) => {
+                if iotry!(handle.kernel_driver_active(i)) {
+                    let _ = iotry!(handle.detach_kernel_driver(i));
+                }
+                let _ = iotry!(handle.claim_interface(i));
+                let mut input_buffer = vec![0u8;mapping.packet_size as usize];
+                loop {
+                    match &t {
+                        &TransferType::Interrupt => {
+                            match handle.read_interrupt(129, &mut input_buffer, Duration::from_secs(4)) {
+                                Ok(_) => {},
+                                Err(libusb::Error::Timeout) => { continue; }
+                                Err(err) => {
+                                    return Err(Error::new(ErrorKind::InvalidInput, err));
+                                }
+                            }
+                        }
+                        _ => {
+                            let msg = format!("Incopatible transfer method: {:?}", t);
+                            return Err(Error::new(ErrorKind::InvalidInput, msg));
+                        }
+                    }
+                    for b in &input_buffer {
+                        print!("{:08b} ", b);
+                    }
+                    println!("");
+                }
             }
             _ => unreachable!(),
         }
