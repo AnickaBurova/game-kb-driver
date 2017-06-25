@@ -1,5 +1,6 @@
 0x046dc21c:
   name: G13
+  packet_size: 8
   key:
       - name: G1
         index: 3

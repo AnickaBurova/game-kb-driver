@@ -9,6 +9,7 @@ use std::collections::HashMap;
 #[derive(Debug, PartialEq, Serialize, Deserialize)]
 pub struct DeviceMap {
     pub name: String,
+    pub packet_size: u16,
     pub key: Vec<Key>,
 }
 
@@ -31,18 +32,4 @@ impl DeviceMap {
 
 #[test]
 fn test_serialise() {
-    let devices = Device {
-        name: "G13".to_owned(),
-        vendor_id: 0x46d,
-        product_id: 0xc21c,
-        key: vec![
-            Key {
-                name: "G1".to_owned(),
-                index: 3,
-                mask: 0x01,
-            },
-        ]
-    };
-    println!("{:?}", devices);
-    println!("{:?}",serde_yaml::to_string(&devices).unwrap());
 }
