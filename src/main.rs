@@ -14,6 +14,7 @@ mod device_input;
 mod device_mapping;
 mod device;
 mod input;
+mod map_input;
 
 
 use std::error::{Error};
@@ -24,8 +25,6 @@ use libxdo::XDo;
 use std::char;
 
 use device_mapping::DeviceMap;
-use device::{DiscoveredDevice, DiscoveredDevices, discover_devices, DeviceList};
-
 use device_manager::DeviceManager;
 
 

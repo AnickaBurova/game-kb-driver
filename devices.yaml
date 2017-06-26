@@ -1,7 +1,7 @@
 0x046dc21c:
   name: G13
   packet_size: 8
-  key:
+  keys:
       - name: G1
         index: 3
         mask: 0x01
@@ -15,4 +15,4 @@
 0x046dc22c:
   name: G600
   packet_size: 8
-  key:
+  keys:
