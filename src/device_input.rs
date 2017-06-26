@@ -7,6 +7,7 @@ use libusb::{self,Context, Direction, TransferType};
 
 use device_mapping::DeviceMap;
 use input::Input;
+use map_input::MapInput;
 
 
 pub struct DeviceInput {
@@ -53,6 +54,7 @@ impl DeviceInput {
                 }
                 let _ = iotry!(handle.claim_interface(i));
                 let mut input_buffer = vec![0u8;mapping.packet_size as usize];
+                let mut mapper = MapInput::new(mapping.keys.len());
                 loop {
                     match &t {
                         &TransferType::Interrupt => {
@@ -71,6 +73,9 @@ impl DeviceInput {
                     }
                     for b in &input_buffer {
                         print!("{:08b} ", b);
+                    }
+                    for inp in mapper.generate_input(&mapping.keys, &input_buffer) {
+                        let _ = iotry!(input_sender.send(inp));
                     }
                     println!("");
                 }

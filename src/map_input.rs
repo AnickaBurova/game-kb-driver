@@ -1,4 +1,4 @@
-
+use std::iter::Iterator;
 
 use device_mapping::DeviceKey;
 use input::Input;
@@ -14,10 +14,18 @@ impl MapInput {
             pressed: vec![false; num_keys]
         }
     }
-    pub fn generate_input(&mut self, keys: &Vec<DeviceKey>, buffer: &[u8]) -> Vec<Input> {
+    pub fn generate_input(&mut self, keys: &[DeviceKey], buffer: &[u8]) -> Vec<Input> {
         let mut res = Vec::new();
-        for ref key in keys {
-
+        for (i, ref key) in keys.iter().enumerate() {
+            let pressed_now = buffer[key.index as usize] & key.mask != 0;
+            let pressed_already = self.pressed[i];
+            if pressed_now && !pressed_already {
+                res.push(Input::KeyDown(key.uid));
+                self.pressed[i] = true;
+            } else if !pressed_now && pressed_already {
+                res.push(Input::KeyUp(key.uid));
+                self.pressed[i] = false;
+            }
         }
         res
     }
