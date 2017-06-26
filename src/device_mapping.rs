@@ -6,6 +6,10 @@ use std::convert::From;
 use std::collections::HashMap;
 
 #[derive(Debug, Clone)]
+pub struct DeviceMaps {
+    pub devices: HashMap<u32, DeviceMap>,
+}
+#[derive(Debug, Clone)]
 pub struct DeviceMap {
     pub name: String,
     pub packet_size: u16,
@@ -22,6 +26,11 @@ pub struct DeviceKey {
 
 #[derive(Debug, Clone)]
 pub struct DeviceAxis {
+}
+
+pub enum DeviceInput {
+    Key(String, String, u16),
+    Axis(String, String, u16),
 }
 
 
@@ -56,11 +65,11 @@ impl DeviceMapDefinition {
     }
 }
 
-impl DeviceMap {
-    pub fn read_file(file_path: &str) -> Result<HashMap<u32, DeviceMap>> {
+impl DeviceMaps {
+    pub fn new(file_path: &str) -> Result<DeviceMaps> {
         let mut def = DeviceMapDefinition::read_file(&file_path)?;
         let mut uid = 0;
-        let mut res = HashMap::new();
+        let mut devices = HashMap::new();
         for (product_key, mut mapping) in def.drain() {
             let mut keys = Vec::new();
             let packet_size = mapping.packet_size;
@@ -106,14 +115,22 @@ impl DeviceMap {
                 }
                 None => (),
             }
-            res.insert( product_key,
+            devices.insert( product_key,
                 DeviceMap {
                     name,
                     packet_size,
                     keys,
                 });
         }
-        Ok(res)
+        Ok(DeviceMaps{
+            devices
+        })
+    }
+
+    pub fn get_inputs(&self) -> Vec<DeviceInput> {
+        let mut res = Vec::new();
+
+        res
     }
 }
 

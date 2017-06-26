@@ -15,6 +15,7 @@ mod device_mapping;
 mod device;
 mod input;
 mod map_input;
+mod profile_definition;
 
 
 use std::error::{Error};
@@ -24,7 +25,7 @@ use std::time::Duration;
 use libxdo::XDo;
 use std::char;
 
-use device_mapping::DeviceMap;
+use device_mapping::DeviceMaps;
 use device_manager::DeviceManager;
 
 
@@ -47,7 +48,7 @@ fn bits(mask: u8, indices: &mut [u8]) -> u8 {
 }
 
 fn main() {
-    let mappings = DeviceMap::read_file("devices.yaml").unwrap();
+    let mappings = DeviceMaps::new("devices.yaml").unwrap();
     println!("{:?}", mappings);
 
     let mut device_manager: DeviceManager = match DeviceManager::new(mappings) {

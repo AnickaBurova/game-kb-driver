@@ -1,5 +1,4 @@
 use std::io::{Result, Error, ErrorKind};
-use std::collections::HashMap;
 use std::sync::mpsc::{Sender, Receiver};
 use std::sync::mpsc;
 use std::{thread, time};
@@ -8,14 +7,14 @@ use rand::distributions::{IndependentSample, Range};
 
 use libusb::{Context, Direction};
 
-use device_mapping::DeviceMap;
+use device_mapping::{DeviceMap, DeviceMaps};
 use input::Input;
 use device_input::DeviceInput;
 
 
 pub struct DeviceManager {
     context: Context,
-    mapping: HashMap<u32,DeviceMap>,
+    mapping: DeviceMaps,
     input_sender: Sender<Input>,
     finished_sender: Sender<u16>,
     finished_receiver: Receiver<u16>,
@@ -46,11 +45,11 @@ fn run_mappings(rcv: Receiver<Input>, mapping: Vec<DeviceMap>) {
 
 
 impl DeviceManager {
-    pub fn new(mapping: HashMap<u32,DeviceMap>) -> Result<DeviceManager> {
+    pub fn new(mapping: DeviceMaps) -> Result<DeviceManager> {
         let context = iotry!(Context::new());
         let (input_sender, input_receiver) = mpsc::channel();
         let (finished_sender, finished_receiver) = mpsc::channel();
-        let dev_maps = mapping.values().map(|ref m| (*m).clone()).collect::<Vec<DeviceMap>>();
+        let dev_maps = mapping.devices.values().map(|ref m| (*m).clone()).collect::<Vec<DeviceMap>>();
         thread::spawn(move || {
             run_mappings(input_receiver, dev_maps);
         });
@@ -83,7 +82,7 @@ impl DeviceManager {
             // create key of the device, mapping definition is hashed by the vendor and product id
             let key = ((device_desc.vendor_id() as u32) << 16) + (device_desc.product_id() as u32);
 
-            let mapping = match self.mapping.get(&key) {
+            let mapping = match self.mapping.devices.get(&key) {
                 Some(ref mapping) => (*mapping).clone(),
                 None => {
                     continue;
@@ -108,7 +107,6 @@ impl DeviceManager {
                 continue;
             }
 
-            //let handle = iotry!(device.open());
             self.mapped.push(address);
 
             let input_sender = self.input_sender.clone();
@@ -123,30 +121,6 @@ impl DeviceManager {
                         println!("Failed to run device input: {}", err);
                     }
                 }
-                //println!("active config: {}", handle.active_configuration().unwrap());
-                //if handle.kernel_driver_active(0).unwrap() {
-                    //let _ = handle.detach_kernel_driver(0).unwrap();
-                //}
-                //let _ = handle.claim_interface(0).unwrap();
-                //let key = rand::random::<u16>();
-                //println!("Key {} down", key);
-                //match input_sender.send(Input::KeyDown(key)) {
-                    //Ok(_) => {},
-                    //Err(err) => {
-                        //println!("Failed to send: {}", err);
-                    //}
-                //}
-                //let mut rng = rand::thread_rng();
-                //let sleep_interval = Range::new(4,10);
-                //let sleep = sleep_interval.ind_sample(&mut rng);
-                //thread::sleep(time::Duration::from_secs(sleep));
-                //println!("Key {} up", key);
-                //match input_sender.send(Input::KeyUp(key)) {
-                    //Ok(_) => {},
-                    //Err(err) => {
-                        //println!("Failed to send: {}", err);
-                    //}
-                //}
                 finished_sender.send(address).unwrap();
             });
         }
