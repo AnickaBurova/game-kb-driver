@@ -5,14 +5,14 @@ use std::io::{Read, Error, ErrorKind};
 use std::convert::From;
 use std::collections::HashMap;
 
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone)]
 pub struct DeviceMap {
     pub name: String,
     pub packet_size: u16,
     pub keys: Vec<DeviceKey>,
 }
 
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone)]
 pub struct DeviceKey {
     pub name: String,
     pub uid: u16,
@@ -20,19 +20,30 @@ pub struct DeviceKey {
     pub mask: u8,
 }
 
+#[derive(Debug, Clone)]
+pub struct DeviceAxis {
+}
 
-#[derive( PartialEq, Serialize, Deserialize)]
+
+#[derive(Serialize, Deserialize)]
 struct DeviceMapDefinition {
     pub name: String,
     pub packet_size: u16,
-    pub keys: Vec<DeviceKeyDefinition>,
+    pub keys: Option<Vec<DeviceKeyDefinition>>,
+    pub bytes: Option<Vec<DeviceByteDefinition>>,
 }
 
-#[derive( PartialEq, Serialize, Deserialize)]
+#[derive(Serialize, Deserialize)]
 struct DeviceKeyDefinition {
     pub name: String,
     pub index: u8,
     pub mask: u8,
+}
+
+#[derive(Serialize, Deserialize)]
+struct DeviceByteDefinition {
+    pub index: u8,
+    pub names: Vec<String>,
 }
 
 impl DeviceMapDefinition {
@@ -54,15 +65,46 @@ impl DeviceMap {
             let mut keys = Vec::new();
             let packet_size = mapping.packet_size;
             let name = mapping.name;
-            for key in mapping.keys.drain(..) {
-                keys.push(
-                    DeviceKey {
-                        name: key.name,
-                        uid,
-                        index: key.index,
-                        mask: key.mask,
-                    });
-                uid += 1;
+            match mapping.keys {
+                Some(mut mkeys) => {
+                    for key in mkeys.drain(..) {
+                        keys.push(
+                            DeviceKey {
+                                name: key.name,
+                                uid,
+                                index: key.index,
+                                mask: key.mask,
+                            });
+                        uid += 1;
+                    }
+                }
+                None => (),
+            }
+            match mapping.bytes {
+                Some(mut mbytes) => {
+                    for mut byte in mbytes.drain(..) {
+                        let mut mask = 1u8;
+                        let index = byte.index;
+                        if byte.names.len() > 8 {
+                            let msg = format!("Mapping for device: {} has invalid number of names in byte: {}", name, index);
+                            return Err(Error::new(ErrorKind::InvalidData, msg));
+                        }
+                        for name in byte.names.drain(..) {
+                            if &name != "-" {
+                                keys.push(
+                                    DeviceKey {
+                                        name,
+                                        uid,
+                                        index,
+                                        mask,
+                                    });
+                                uid += 1;
+                            }
+                            mask <<= 1;
+                        }
+                    }
+                }
+                None => (),
             }
             res.insert( product_key,
                 DeviceMap {

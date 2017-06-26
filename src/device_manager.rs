@@ -22,9 +22,25 @@ pub struct DeviceManager {
     mapped: Vec<u16>,
 }
 
-fn run_mappings(rcv: Receiver<Input>) {
+fn run_mappings(rcv: Receiver<Input>, mapping: Vec<DeviceMap>) {
+    let mut maps = mapping;
+    let mut keys = Vec::new();
+    for mut m in maps.drain(..) {
+        for k in m.keys.drain(..) {
+            keys.push(k.name);
+        }
+    }
     for inp in rcv.iter() {
-        println!("input: {:?}",inp);
+        // find name of the key
+        match inp {
+            Input::KeyDown(uid) => {
+                println!("Key {} down", keys[uid as usize]);
+            }
+            Input::KeyUp(uid) => {
+                println!("Key {} up", keys[uid as usize]);
+            }
+            _ => {}
+        }
     }
 }
 
@@ -34,8 +50,9 @@ impl DeviceManager {
         let context = iotry!(Context::new());
         let (input_sender, input_receiver) = mpsc::channel();
         let (finished_sender, finished_receiver) = mpsc::channel();
+        let dev_maps = mapping.values().map(|ref m| (*m).clone()).collect::<Vec<DeviceMap>>();
         thread::spawn(move || {
-            run_mappings(input_receiver);
+            run_mappings(input_receiver, dev_maps);
         });
         Ok(DeviceManager {
             context, // context of usblib, which is used to find connected devices

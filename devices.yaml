@@ -1,16 +1,17 @@
 0x046dc21c:
   name: G13
   packet_size: 8
-  keys:
-      - name: G1
-        index: 3
-        mask: 0x01
-      - name: G2
-        index: 3
-        mask: 0x02
-      - name: G3
-        index: 3
-        mask: 0x04
+  bytes:
+      - index: 3
+        names: [G1, G2, G3, G4, G5, G6, G7, G8]
+      - index: 4
+        names: [G9, G10, G11, G12, G13, G14, G15, G16]
+      - index: 5
+        names: [G17, G18, G19, G20, G21, G22]
+      - index: 6
+        names: [Menu, Menu1, Menu2, Menu3, Menu4, Mode1, Mode2, Mode3]
+      - index: 7
+        names: [Mode4, ThumbLeft, ThumbBottom, Thumb, -, MenuLight]
 
 0x046dc22c:
   name: G600
