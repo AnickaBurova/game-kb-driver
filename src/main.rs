@@ -22,11 +22,12 @@ use std::error::{Error};
 use std::{thread, time};
 use hex_utils::{Format, xxd_str};
 use std::time::Duration;
-use libxdo::XDo;
 use std::char;
 
 use device_mapping::DeviceMaps;
 use device_manager::DeviceManager;
+
+use profile_definition::Profiles;
 
 
 fn bits(mask: u8, indices: &mut [u8]) -> u8 {
@@ -49,9 +50,11 @@ fn bits(mask: u8, indices: &mut [u8]) -> u8 {
 
 fn main() {
     let mappings = DeviceMaps::new("devices.yaml").unwrap();
-    println!("{:?}", mappings);
+    let device_inputs = mappings.get_inputs();
+    let profiles = Profiles::new("profile.yaml", device_inputs).unwrap();
+    //println!("{:?}", mappings);
 
-    let mut device_manager: DeviceManager = match DeviceManager::new(mappings) {
+    let mut device_manager: DeviceManager = match DeviceManager::new(mappings, profiles) {
         Ok(value) => value,
         Err(err) => {
             println!("Failed to create manager: {}", err);

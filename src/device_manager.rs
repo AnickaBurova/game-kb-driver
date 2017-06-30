@@ -4,12 +4,14 @@ use std::sync::mpsc;
 use std::{thread, time};
 use rand::{self,Rng};
 use rand::distributions::{IndependentSample, Range};
+use libxdo::XDo;
 
 use libusb::{Context, Direction};
 
 use device_mapping::{DeviceMap, DeviceMaps};
 use input::Input;
 use device_input::DeviceInput;
+use profile_definition::{Profiles, execute};
 
 
 pub struct DeviceManager {
@@ -21,22 +23,20 @@ pub struct DeviceManager {
     mapped: Vec<u16>,
 }
 
-fn run_mappings(rcv: Receiver<Input>, mapping: Vec<DeviceMap>) {
-    let mut maps = mapping;
-    let mut keys = Vec::new();
-    for mut m in maps.drain(..) {
-        for k in m.keys.drain(..) {
-            keys.push(k.name);
-        }
-    }
+//fn run_mappings(rcv: Receiver<Input>, mapping: Vec<DeviceMap>) {
+fn run_mappings(rcv: Receiver<Input>, profiles: Profiles) {
+    let xdo = XDo::new(None).unwrap();
+    let ref output = profiles.profiles[0].modes[0].output;
     for inp in rcv.iter() {
         // find name of the key
         match inp {
             Input::KeyDown(uid) => {
-                println!("Key {} down", keys[uid as usize]);
+                let (ref a, _) = output[uid as usize];
+                execute(&xdo, a);
             }
             Input::KeyUp(uid) => {
-                println!("Key {} up", keys[uid as usize]);
+                let (_,ref a) = output[uid as usize];
+                execute(&xdo, a);
             }
             _ => {}
         }
@@ -45,13 +45,13 @@ fn run_mappings(rcv: Receiver<Input>, mapping: Vec<DeviceMap>) {
 
 
 impl DeviceManager {
-    pub fn new(mapping: DeviceMaps) -> Result<DeviceManager> {
+    pub fn new(mapping: DeviceMaps, profiles: Profiles) -> Result<DeviceManager> {
         let context = iotry!(Context::new());
         let (input_sender, input_receiver) = mpsc::channel();
         let (finished_sender, finished_receiver) = mpsc::channel();
-        let dev_maps = mapping.devices.values().map(|ref m| (*m).clone()).collect::<Vec<DeviceMap>>();
+        //let dev_maps = mapping.devices.values().map(|ref m| (*m).clone()).collect::<Vec<DeviceMap>>();
         thread::spawn(move || {
-            run_mappings(input_receiver, dev_maps);
+            run_mappings(input_receiver, profiles);
         });
         Ok(DeviceManager {
             context, // context of usblib, which is used to find connected devices

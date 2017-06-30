@@ -1,11 +1,18 @@
 - name: default
-  pattern: *
+  pattern: "*"
   modes:
     - name: Mode-1
       devices:
         - device: G13
           single:
             - key: G1
-              cmd: ESC
+              cmd: esc
             - key: G2
               cmd: M
+
+            - key: G10
+              cmd: Q
+            - key: G11
+              cmd: space
+            - key: G12
+              cmd: E

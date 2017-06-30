@@ -28,6 +28,7 @@ pub struct DeviceKey {
 pub struct DeviceAxis {
 }
 
+#[derive(Debug)]
 pub enum DeviceInput {
     Key(String, String, u16),
     Axis(String, String, u16),
@@ -129,7 +130,11 @@ impl DeviceMaps {
 
     pub fn get_inputs(&self) -> Vec<DeviceInput> {
         let mut res = Vec::new();
-
+        for ref device in self.devices.values() {
+            for key in &device.keys {
+                res.push(DeviceInput::Key(device.name.to_owned(), key.name.to_owned(), key.uid));
+            }
+        }
         res
     }
 }
