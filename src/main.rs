@@ -12,41 +12,18 @@ mod macros;
 mod device_manager;
 mod device_input;
 mod device_mapping;
-mod device;
 mod input;
 mod map_input;
 mod profile_definition;
 
 
-use std::error::{Error};
 use std::{thread, time};
-use hex_utils::{Format, xxd_str};
-use std::time::Duration;
-use std::char;
 
 use device_mapping::DeviceMaps;
 use device_manager::DeviceManager;
 
 use profile_definition::Profiles;
 
-
-fn bits(mask: u8, indices: &mut [u8]) -> u8 {
-    let mut val = mask;
-    let mut size = 0;
-    let mut current = 0;
-    loop {
-        if val == 0 {
-            return size;
-        }
-        if val & 1 == 1 {
-            indices[size as usize] = current;
-            size += 1;
-        }
-        current += 1;
-        val >>= 1;
-    }
-    return 0;
-}
 
 fn main() {
     let mappings = DeviceMaps::new("devices.yaml").unwrap();

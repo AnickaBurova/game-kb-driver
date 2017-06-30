@@ -18,12 +18,11 @@ impl DeviceInput {
         let context = iotry!(Context::new());
         let mut handle = None;
         let mut iet = None;
-        for mut device in iotry!(context.devices()).iter() {
+        for device in iotry!(context.devices()).iter() {
             if bus_number != device.bus_number() || address != device.address() {
                 continue;
             }
 
-            let device_desc = iotry!(device.device_descriptor());
             // find input interface
             let cfg = iotry!(device.active_config_descriptor());
             for interface in cfg.interfaces() {

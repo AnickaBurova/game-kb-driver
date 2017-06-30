@@ -1,14 +1,12 @@
 use std::io::{Result, Error, ErrorKind};
 use std::sync::mpsc::{Sender, Receiver};
 use std::sync::mpsc;
-use std::{thread, time};
-use rand::{self,Rng};
-use rand::distributions::{IndependentSample, Range};
+use std::{thread};
 use libxdo::XDo;
 
 use libusb::{Context, Direction};
 
-use device_mapping::{DeviceMap, DeviceMaps};
+use device_mapping::{ DeviceMaps};
 use input::Input;
 use device_input::DeviceInput;
 use profile_definition::{Profiles, execute};
@@ -72,7 +70,7 @@ impl DeviceManager {
         }
         println!("Finding devices");
         // search for new devices, which are not yet mapped
-        for mut device in iotry!(self.context.devices()).iter() {
+        for device in iotry!(self.context.devices()).iter() {
             let address = ((device.bus_number() as u16) << 8) + (device.address() as u16);
             if self.mapped.contains(&address) {
                 continue; // this address is already mapped

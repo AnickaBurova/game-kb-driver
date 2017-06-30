@@ -1,8 +1,7 @@
 extern crate serde_yaml;
 use std::io::Result;
 use std::fs::File;
-use std::io::{Read, Error, ErrorKind};
-use std::convert::From;
+use std::io::{Error, ErrorKind};
 use std::collections::HashMap;
 
 #[derive(Debug, Clone)]
@@ -13,11 +12,11 @@ pub struct DeviceMaps {
 pub struct DeviceMap {
     pub name: String,
     pub packet_size: u16,
-    pub keys: Vec<DeviceKey>,
+    pub keys: Vec<DeviceButton>,
 }
 
 #[derive(Debug, Clone)]
-pub struct DeviceKey {
+pub struct DeviceButton {
     pub name: String,
     pub uid: u16,
     pub index: u8,
@@ -71,7 +70,7 @@ impl DeviceMaps {
         let mut def = DeviceMapDefinition::read_file(&file_path)?;
         let mut uid = 0;
         let mut devices = HashMap::new();
-        for (product_key, mut mapping) in def.drain() {
+        for (product_key, mapping) in def.drain() {
             let mut keys = Vec::new();
             let packet_size = mapping.packet_size;
             let name = mapping.name;
@@ -79,7 +78,7 @@ impl DeviceMaps {
                 Some(mut mkeys) => {
                     for key in mkeys.drain(..) {
                         keys.push(
-                            DeviceKey {
+                            DeviceButton {
                                 name: key.name,
                                 uid,
                                 index: key.index,
@@ -102,7 +101,7 @@ impl DeviceMaps {
                         for name in byte.names.drain(..) {
                             if &name != "-" {
                                 keys.push(
-                                    DeviceKey {
+                                    DeviceButton {
                                         name,
                                         uid,
                                         index,

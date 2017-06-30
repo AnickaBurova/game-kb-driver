@@ -103,7 +103,7 @@ impl Profiles {
                 let mut output = vec![(Action::NoOp, Action::NoOp); device_inputs.len()];
                 for mut device_def in mode_def.devices.drain(..) {
                     let device_name = device_def.device;
-                    for mut single in device_def.single.drain(..) {
+                    for single in device_def.single.drain(..) {
                         let hash = (&device_name, &single.key);
                         let index = *inputs_index.get(&hash).unwrap() as usize;
                         output[index] = (Action::KeyDown(single.cmd.to_owned()), Action::KeyUp(single.cmd));
