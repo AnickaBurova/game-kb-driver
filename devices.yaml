@@ -1,7 +1,7 @@
 0x046dc21c:
-  name: G13
-  packet_size: 8
-  bytes:
+    name: G13
+    packet_size: 8
+    bytes:
       - index: 3
         names: [G1, G2, G3, G4, G5, G6, G7, G8]
       - index: 4
@@ -12,6 +12,15 @@
         names: [Menu, Menu1, Menu2, Menu3, Menu4, Mode1, Mode2, Mode3]
       - index: 7
         names: [Mode4, ThumbLeft, ThumbBottom, Thumb, -, MenuLight]
+    analogs:
+      - name: X
+        index: 1
+        output: [-1.0, 1.0]
+      - name: Y
+        index: 2
+        output: [-1.0, 1.0]
+
+
 
 0x046dc22c:
   name: G600

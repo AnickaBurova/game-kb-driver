@@ -21,6 +21,8 @@ pub struct DeviceMap {
     pub packet_size: u16,
     /// All the mapped digital inputs on the device.
     pub digitals: Vec<DeviceDigitalInput>,
+    /// All the mapped analog inputs on the device.
+    pub analogs: Vec<DeviceAnalogInput>,
 }
 
 /// Mapped digital input on a device. This have two states, pressed or not pressed.
@@ -44,9 +46,9 @@ pub struct DeviceAnalogInput {
     /// Unique id of the input, this is auto generated on fly and used as communication between threads.
     pub uid: u16,
     /// Index of the byte in the device input stream.
-    pub indices: u8,
+    pub index: u8,
     /// Interval of values to map the input byte from 0 to 255. (This will usually be -1 to +1)
-    pub state: (f32, f32),
+    pub output: (f32, f32),
 }
 
 #[derive(Debug)]
@@ -65,6 +67,7 @@ struct DeviceMapDefinition {
     pub packet_size: u16, // Number of bytes in the input stream expected to read from the usb.
     pub digitals: Option<Vec<DeviceButtonDefinition>>, // Definition of individual digitals on the device mapped to individual bytes and mask.
     pub bytes: Option<Vec<DeviceByteDefinition>>, // Definition of individual bytes in the device input, mapped to digitals in bit order.
+    pub analogs: Option<Vec<DeviceAnalogDefinition>>, // Definition of individual analog inputs on the divece mapped to individual bytes.
 }
 
 /// Individual button mapped to a byte in the input stream on a device.
@@ -80,6 +83,13 @@ struct DeviceButtonDefinition {
 struct DeviceByteDefinition {
     pub index: u8, // Index of the byte in the input stream.
     pub names: Vec<String>, // Names of the digitals in bit order.
+}
+
+#[derive(Serialize, Deserialize)]
+struct DeviceAnalogDefinition {
+    pub name: String,
+    pub index: u8,
+    pub output: (f32, f32),
 }
 
 impl DeviceMapDefinition {
@@ -109,13 +119,13 @@ impl DeviceMaps {
             // convert individual digitals
             match mapping.digitals {
                 Some(mut mdigitals) => {
-                    for key in mdigitals.drain(..) {
+                    for digital in mdigitals.drain(..) {
                         digitals.push(
                             DeviceDigitalInput {
-                                name: key.name,
+                                name: digital.name,
                                 uid,
-                                index: key.index,
-                                mask: key.mask,
+                                index: digital.index,
+                                mask: digital.mask,
                             });
                         uid += 1;
                     }
@@ -149,11 +159,26 @@ impl DeviceMaps {
                 }
                 None => (),
             }
+            let mut analogs = Vec::new();
+            match mapping.analogs {
+                Some(mut manalogs) => {
+                    for analog in manalogs.drain(..) {
+                        analogs.push( DeviceAnalogInput {
+                            name: analog.name,
+                            uid,
+                            index: analog.index,
+                            output: analog.output,
+                        });
+                    }
+                }
+                None => (),
+            }
             devices.insert( product_key,
                 DeviceMap {
                     name,
                     packet_size,
                     digitals,
+                    analogs,
                 });
         }
         Ok(DeviceMaps{
@@ -167,6 +192,9 @@ impl DeviceMaps {
         for ref device in self.devices.values() {
             for digital in &device.digitals {
                 res.push(DeviceInputUid::Digital(device.name.to_owned(), digital.name.to_owned(), digital.uid));
+            }
+            for analog in &device.analogs {
+                res.push(DeviceInputUid::Analog(device.name.to_owned(), analog.name.to_owned(), analog.uid));
             }
         }
         res
