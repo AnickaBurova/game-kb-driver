@@ -27,13 +27,16 @@ fn run_mappings(rcv: Receiver<Input>, profiles: Profiles) {
     for inp in rcv.iter() {
         // find name of the key
         match inp {
-            Input::KeyDown(uid) => {
+            Input::ButtonDown(uid) => {
                 let (ref a, _) = output[uid as usize];
                 execute(&xdo, a);
             }
-            Input::KeyUp(uid) => {
+            Input::ButtonUp(uid) => {
                 let (_,ref a) = output[uid as usize];
                 execute(&xdo, a);
+            }
+            Input::Axis(uid, value) => {
+                println!("axis: {} = {}", uid, value);
             }
             _ => {}
         }

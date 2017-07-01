@@ -49,7 +49,7 @@ pub fn run(bus_number: u8, address: u8, mapping: DeviceMap, input_sender: Sender
             }
             let _ = iotry!(handle.claim_interface(i));
             let mut input_buffer = vec![0u8;mapping.packet_size as usize];
-            let mut mapper = MapInput::new(mapping.digitals.len());
+            let mut mapper = MapInput::new(mapping.digitals.len(), mapping.analogs.len());
             println!("e: {}", e);
             loop {
                 match &t {
@@ -67,13 +67,13 @@ pub fn run(bus_number: u8, address: u8, mapping: DeviceMap, input_sender: Sender
                         return Err(Error::new(ErrorKind::InvalidInput, msg));
                     }
                 }
-                for b in &input_buffer {
-                    print!("{:08b} ", b);
-                }
-                for inp in mapper.generate_input(&mapping.digitals, &input_buffer) {
+                //for b in &input_buffer {
+                    //print!("{:08b} ", b);
+                //}
+                for inp in mapper.generate_input(&mapping.digitals, &mapping.analogs, &input_buffer) {
                     let _ = iotry!(input_sender.send(inp));
                 }
-                println!("");
+                //println!("");
             }
         }
         _ => unreachable!(),

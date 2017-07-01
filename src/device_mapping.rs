@@ -51,6 +51,23 @@ pub struct DeviceAnalogInput {
     pub output: (f32, f32),
 }
 
+impl DeviceAnalogInput {
+    /// Convert input value to output interval.
+    pub fn convert(&self, value: u8) -> f32 {
+        let value = value as f32;
+        value * (self.output.1 - self.output.0) / 256.0 + self.output.0
+    }
+}
+
+#[test]
+fn test_analog_convert() {
+    let input = DeviceAnalogInput { name: "Test".to_owned(), uid: 0, index: 0, output: (-1.0, 1.0) };
+
+    for i in 0..256 {
+        println!("{} = {}", i, input.convert(i as u8));
+    }
+}
+
 #[derive(Debug)]
 pub enum DeviceInputUid {
     Digital(String, String, u16),
@@ -63,32 +80,45 @@ pub enum DeviceInputUid {
 /// Device mapping read form yaml files.
 #[derive(Serialize, Deserialize)]
 struct DeviceMapDefinition {
-    pub name: String, // Name of the device, the name is used to map profiles to this device.
-    pub packet_size: u16, // Number of bytes in the input stream expected to read from the usb.
-    pub digitals: Option<Vec<DeviceButtonDefinition>>, // Definition of individual digitals on the device mapped to individual bytes and mask.
-    pub bytes: Option<Vec<DeviceByteDefinition>>, // Definition of individual bytes in the device input, mapped to digitals in bit order.
-    pub analogs: Option<Vec<DeviceAnalogDefinition>>, // Definition of individual analog inputs on the divece mapped to individual bytes.
+    /// Name of the device, the name is used to map profiles to this device.
+    pub name: String,
+    /// Number of bytes in the input stream expected to read from the usb.
+    pub packet_size: u16,
+    /// Definition of individual digitals on the device mapped to individual bytes and mask
+    pub digitals: Option<Vec<DeviceButtonDefinition>>,
+    /// Definition of individual bytes in the device input, mapped to digitals in bit order.
+    pub bytes: Option<Vec<DeviceByteDefinition>>,
+    /// Definition of individual analog inputs on the divece mapped to individual bytes.
+    pub analogs: Option<Vec<DeviceAnalogDefinition>>,
 }
 
 /// Individual button mapped to a byte in the input stream on a device.
 #[derive(Serialize, Deserialize)]
 struct DeviceButtonDefinition {
-    pub name: String, // Name of the digital. This is used to map profile to this digital.
-    pub index: u8, // Index of the byte in device input stream.
-    pub mask: u8, // Bit mask which is set when this digital is pressed.
+    /// Name of the digital.
+    pub name: String,
+    /// Index of the byte in device input stream.
+    pub index: u8,
+    /// Bit mask which is set when this digital is pressed.
+    pub mask: u8,
 }
 
 /// Individual byte in the device input stream mapped to max of 8 digitals in bit order.
 #[derive(Serialize, Deserialize)]
 struct DeviceByteDefinition {
-    pub index: u8, // Index of the byte in the input stream.
-    pub names: Vec<String>, // Names of the digitals in bit order.
+    /// Index of the byte in the input stream.
+    pub index: u8,
+    /// Names of the digitals in bit order.
+    pub names: Vec<String>,
 }
 
 #[derive(Serialize, Deserialize)]
 struct DeviceAnalogDefinition {
+    /// Name of the analog input.
     pub name: String,
+    /// Index of the byte in device input stream.
     pub index: u8,
+    /// Interval of values to map the input byte from 0 to 255. (This will usually be -1 to +1)
     pub output: (f32, f32),
 }
 
@@ -169,6 +199,7 @@ impl DeviceMaps {
                             index: analog.index,
                             output: analog.output,
                         });
+                        uid += 1;
                     }
                 }
                 None => (),
