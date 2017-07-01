@@ -21,7 +21,6 @@ pub struct DeviceManager {
     mapped: Vec<u16>,
 }
 
-//fn run_mappings(rcv: Receiver<Input>, mapping: Vec<DeviceMap>) {
 fn run_mappings(rcv: Receiver<Input>, profiles: Profiles) {
     let xdo = XDo::new(None).unwrap();
     let ref output = profiles.profiles[0].modes[0].output;

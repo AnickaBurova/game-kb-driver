@@ -4,7 +4,7 @@ use std::collections::HashMap;
 use serde_yaml::{self};
 use libxdo::XDo;
 
-use device_mapping::DeviceInput;
+use device_mapping::DeviceInputUid;
 
 #[derive(Serialize, Deserialize)]
 struct ProfileDef {
@@ -72,7 +72,7 @@ pub fn execute(xdo: &XDo, action: &Action) {
 
 
 impl Profiles {
-    pub fn new(file_path: &str, device_inputs: Vec<DeviceInput>) -> io::Result<Profiles> {
+    pub fn new(file_path: &str, device_inputs: Vec<DeviceInputUid>) -> io::Result<Profiles> {
         let mut file = File::open(file_path)?;
         let mut profiles_def: Vec<ProfileDef> = match serde_yaml::from_reader(&mut file) {
             Ok(value) => value,
@@ -82,10 +82,10 @@ impl Profiles {
         let mut inputs_index = HashMap::new();
         for dev_inp in &device_inputs {
             match dev_inp {
-                &DeviceInput::Key(ref device, ref key, ref index) => {
+                &DeviceInputUid::Digital(ref device, ref key, ref index) => {
                     inputs_index.insert((device,key), *index);
                 }
-                &DeviceInput::Axis(ref device, ref key, ref index) => {
+                &DeviceInputUid::Analog(ref device, ref key, ref index) => {
                     inputs_index.insert((device,key), *index);
                 }
             }
