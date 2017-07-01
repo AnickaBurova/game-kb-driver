@@ -8,8 +8,8 @@ use libusb::{Context, Direction};
 
 use device_mapping::{ DeviceMaps};
 use input::Input;
-use device_input::DeviceInput;
 use profile_definition::{Profiles, execute};
+use device_input::{self};
 
 
 pub struct DeviceManager {
@@ -112,7 +112,7 @@ impl DeviceManager {
             let dev_address = device.address();
             thread::spawn(move || {
                 println!("Running devices at {}", address);
-                match DeviceInput::run(bus_number, dev_address, mapping, input_sender) {
+                match device_input::run(bus_number, dev_address, mapping, input_sender) {
                     Ok(_) => {},
                     Err(err) => {
                         println!("Failed to run device input: {}", err);
