@@ -4,21 +4,29 @@
       - name: Mode-1
         devices:
           - device: G13
+            # this is a single key press:
             single:
+                # name of the button from the device
+              #- button: G1
+              # key to press to simulate
+                #cmd: Escape
+                #
 
+            # multiple single keypresses in a pack
             singles:
-                - button: G
-                  index: 1
-                  cmds: [Escape, m, q, w, e, r, z]
-                - button: G
-                  index: 8
-                  cmds: [Escape, KP_Enter, q, f, e, r, t]
-                - button: G
-                  index: 15
-                  cmds: [shift, ctrl, a, a, space]
+              - button: G # prefix for the button on the device
+                index: 1  # starting index
+                cmds: [Escape, m, q, w, e, r, z] # array of keys
+              - button: G
+                index: 8
+                cmds: [Escape, KP_Enter, q, f, e, r, t]
+              - button: G
+                index: 15
+                cmds: [shift, ctrl, a, a, space]
 
+            # axes on the device
             axes:
-              - axis: X
-                simple: [a,d]
+              - axis: X # name of the axis on the device
+                simple: [a,d] # two inverse keys for on the axis
               - axis: Y
                 simple: [w,s]

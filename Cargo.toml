@@ -1,35 +1,13 @@
 [package]
-name = "lg-driver"
-version = "0.1.22"
+name = "game-kb-driver"
+version = "0.1.23"
 authors = ["Anicka Burova <anicka.burova@gmail.com>"]
 
 [dependencies]
 libusb = "*"
-hex-utils = "*"
 libxdo = "*"
 yaml-rust = "*"
 serde = "0.9"
 serde_derive = "0.9"
 serde_yaml = "0.6"
-rand = "*"
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
