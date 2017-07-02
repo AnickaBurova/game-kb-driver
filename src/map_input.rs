@@ -32,8 +32,9 @@ impl MapInput {
         for (i, ref analog) in analogs.iter().enumerate() {
             let current = buffer[analog.index as usize];
             if current != self.analogs[i] {
+                let old = self.analogs[i];
                 self.analogs[i] = current;
-                res.push(Input::Axis(analog.uid, analog.convert(current)));
+                res.push(Input::Axis(analog.uid, analog.convert(current), analog.convert(old)));
             }
         }
 

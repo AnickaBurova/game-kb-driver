@@ -4,5 +4,5 @@
 pub enum Input {
     ButtonDown (u16),
     ButtonUp (u16),
-    Axis(u16, f32),
+    Axis(u16, f32, f32),
 }

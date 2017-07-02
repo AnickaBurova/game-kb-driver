@@ -8,7 +8,7 @@ use libusb::{Context, Direction};
 
 use device_mapping::{ DeviceMaps};
 use input::Input;
-use profile_definition::{Profiles, execute};
+use profile_definition::{Profiles};
 use device_input::{self};
 
 
@@ -28,15 +28,13 @@ fn run_mappings(rcv: Receiver<Input>, profiles: Profiles) {
         // find name of the key
         match inp {
             Input::ButtonDown(uid) => {
-                let (ref a, _) = output[uid as usize];
-                execute(&xdo, a);
+                output[uid as usize].execute(&xdo, 1.0, 0.0);
             }
             Input::ButtonUp(uid) => {
-                let (_,ref a) = output[uid as usize];
-                execute(&xdo, a);
+                output[uid as usize].execute(&xdo, 0.0, 1.0);
             }
-            Input::Axis(uid, value) => {
-                println!("axis: {} = {}", uid, value);
+            Input::Axis(uid, value, old_value) => {
+                output[uid as usize].execute(&xdo, value, old_value);
             }
             _ => {}
         }

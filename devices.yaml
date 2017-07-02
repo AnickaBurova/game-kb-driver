@@ -22,7 +22,7 @@
 
 
 
-0x046dc22c:
+0x046dc24a:
   name: G600
-  packet_size: 8
+  packet_size: 160
   digitals:

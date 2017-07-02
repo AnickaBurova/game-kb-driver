@@ -24,7 +24,8 @@ pub fn run(bus_number: u8, address: u8, mapping: DeviceMap, input_sender: Sender
         for interface in cfg.interfaces() {
             for desc in interface.descriptors() {
                 for endpoint in desc.endpoint_descriptors() {
-                    if endpoint.direction() == Direction::In && endpoint.max_packet_size() == mapping.packet_size {
+                    //if endpoint.direction() == Direction::In && endpoint.max_packet_size() == mapping.packet_size {
+                    if endpoint.direction() == Direction::In {
                         iet = Some((interface.number(), endpoint.address(), endpoint.transfer_type()));
                         break;
                     }
@@ -50,7 +51,6 @@ pub fn run(bus_number: u8, address: u8, mapping: DeviceMap, input_sender: Sender
             let _ = iotry!(handle.claim_interface(i));
             let mut input_buffer = vec![0u8;mapping.packet_size as usize];
             let mut mapper = MapInput::new(mapping.digitals.len(), mapping.analogs.len());
-            println!("e: {}", e);
             loop {
                 match &t {
                     &TransferType::Interrupt => {
@@ -67,13 +67,13 @@ pub fn run(bus_number: u8, address: u8, mapping: DeviceMap, input_sender: Sender
                         return Err(Error::new(ErrorKind::InvalidInput, msg));
                     }
                 }
-                //for b in &input_buffer {
-                    //print!("{:08b} ", b);
-                //}
+                for b in &input_buffer {
+                    print!("{:08b} ", b);
+                }
                 for inp in mapper.generate_input(&mapping.digitals, &mapping.analogs, &input_buffer) {
                     let _ = iotry!(input_sender.send(inp));
                 }
-                //println!("");
+                println!("");
             }
         }
         _ => unreachable!(),

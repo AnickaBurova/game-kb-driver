@@ -1,18 +1,24 @@
-- name: default
-  pattern: "*"
-  modes:
-    - name: Mode-1
-      devices:
-        - device: G13
-          single:
-            - key: G1
-              cmd: esc
-            - key: G2
-              cmd: M
+  - name: default
+    pattern: "*"
+    modes:
+      - name: Mode-1
+        devices:
+          - device: G13
+            single:
 
-            - key: G10
-              cmd: Q
-            - key: G11
-              cmd: space
-            - key: G12
-              cmd: E
+              - button: G10
+                cmd: q
+              - button: G11
+                cmd: space
+              - button: G12
+                cmd: e
+            singles:
+                - button: G
+                  index: 1
+                  cmds: [Escape, m, q, w, e, r, t]
+
+            axes:
+              - axis: X
+                simple: [a,d]
+              - axis: Y
+                simple: [w,s]
