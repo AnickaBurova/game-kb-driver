@@ -1,6 +1,6 @@
 [root]
 name = "game-kb-driver"
-version = "0.1.22"
+version = "0.1.24"
 dependencies = [
  "libusb 0.3.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "libxdo 0.6.0 (registry+https://github.com/rust-lang/crates.io-index)",

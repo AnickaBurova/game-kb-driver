@@ -1,6 +1,6 @@
 [package]
 name = "game-kb-driver"
-version = "0.1.24"
+version = "0.1.25"
 authors = ["Anicka Burova <anicka.burova@gmail.com>"]
 
 [dependencies]
@@ -10,5 +10,6 @@ yaml-rust = "*"
 serde = "0.9"
 serde_derive = "0.9"
 serde_yaml = "0.6"
+
 
 
