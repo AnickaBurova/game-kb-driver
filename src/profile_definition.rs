@@ -85,8 +85,8 @@ impl Action {
                 }
             }
             &Action::Axis(ref l, ref r) => {
-                let mut lp = old_input < -0.5;
-                let mut rp = old_input > 0.5;
+                let lp = old_input < -0.5;
+                let rp = old_input > 0.5;
                 if lp && input >= -0.5 {
                     xdo.send_keysequence_up(l,0).unwrap();
                 } else if !lp && input < -0.5 {

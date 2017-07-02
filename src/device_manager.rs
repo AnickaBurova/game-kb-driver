@@ -36,7 +36,6 @@ fn run_mappings(rcv: Receiver<Input>, profiles: Profiles) {
             Input::Axis(uid, value, old_value) => {
                 output[uid as usize].execute(&xdo, value, old_value);
             }
-            _ => {}
         }
     }
 }

@@ -1,11 +1,9 @@
 extern crate libusb;
-extern crate hex_utils;
 extern crate libxdo;
 extern crate yaml_rust;
 #[macro_use]
 extern crate serde_derive;
 extern crate serde_yaml;
-extern crate rand;
 
 #[macro_use]
 mod macros;
