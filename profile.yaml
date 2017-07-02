@@ -6,16 +6,16 @@
           - device: G13
             single:
 
-              - button: G10
-                cmd: q
-              - button: G11
-                cmd: space
-              - button: G12
-                cmd: e
             singles:
                 - button: G
                   index: 1
-                  cmds: [Escape, m, q, w, e, r, t]
+                  cmds: [Escape, m, q, w, e, r, z]
+                - button: G
+                  index: 8
+                  cmds: [Escape, KP_Enter, q, f, e, r, t]
+                - button: G
+                  index: 15
+                  cmds: [shift, ctrl, a, a, space]
 
             axes:
               - axis: X
