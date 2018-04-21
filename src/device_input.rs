@@ -63,17 +63,18 @@ pub fn run(bus_number: u8, address: u8, mapping: DeviceMap, input_sender: Sender
                         }
                     }
                     _ => {
-                        let msg = format!("Incopatible transfer method: {:?}", t);
+                        let msg = format!("Incompatible transfer method: {:?}", t);
                         return Err(Error::new(ErrorKind::InvalidInput, msg));
                     }
                 }
+                let mut res = String::new();
                 for b in &input_buffer {
-                    print!("{:08b} ", b);
+                    res = format!("{}{:08b} ",res, b);
                 }
                 for inp in mapper.generate_input(&mapping.digitals, &mapping.analogs, &input_buffer) {
                     let _ = iotry!(input_sender.send(inp));
                 }
-                println!("");
+                trace!("{}",res);
             }
         }
         _ => unreachable!(),

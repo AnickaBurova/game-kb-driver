@@ -61,13 +61,13 @@ impl DeviceManager {
     }
 
     pub fn discover(&mut self) -> Result<()> {
-        println!("Removing finished devices");
+        trace!("Removing finished devices");
         // removing finished devices from mapped
         for address in self.finished_receiver.try_iter() {
-            println!("Device at {} has finished, removing it", address);
+            trace!("Device at {} has finished, removing it", address);
             self.mapped.retain(|&a| a != address);
         }
-        println!("Finding devices");
+        trace!("Finding devices");
         // search for new devices, which are not yet mapped
         for device in iotry!(self.context.devices()).iter() {
             let address = ((device.bus_number() as u16) << 8) + (device.address() as u16);
@@ -100,7 +100,7 @@ impl DeviceManager {
             }
 
             if !ok {
-                println!("Device {} has no compatible endpoint",mapping.name);
+                error!("Device {} has no compatible endpoint",mapping.name);
                 continue;
             }
 
@@ -111,11 +111,11 @@ impl DeviceManager {
             let bus_number = device.bus_number();
             let dev_address = device.address();
             thread::spawn(move || {
-                println!("Running devices at {}", address);
+                info!("Running devices at {}", address);
                 match device_input::run(bus_number, dev_address, mapping, input_sender) {
                     Ok(_) => {},
                     Err(err) => {
-                        println!("Failed to run device input: {}", err);
+                        error!("Failed to run device input: {}", err);
                     }
                 }
                 finished_sender.send(address).unwrap();

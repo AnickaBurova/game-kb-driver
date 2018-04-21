@@ -49,16 +49,19 @@ struct AxisDef {
 }
 
 
+#[derive(Debug)]
 pub struct Profiles {
     pub profiles: Vec<Profile>,
 }
 
+#[derive(Debug)]
 pub struct Profile {
     pub name: String,
     pub pattern: String,
     pub modes: Vec<Mode>,
 }
 
+#[derive(Debug)]
 pub struct Mode {
     pub name: String,
     pub output: Vec<Action>,
@@ -123,7 +126,7 @@ impl Profiles {
             }
         }
 
-        println!("dev_inputs: {:?}", device_inputs);
+        trace!("dev_inputs: {:?}", device_inputs);
         let mut profiles = Vec::new();
         for mut profile_def in profiles_def.drain(..) {
             let name = profile_def.name;

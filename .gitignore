@@ -3,3 +3,5 @@ target/
 
 *.sw[p,o]
 .versionrc
+.version_upgrade
+log/

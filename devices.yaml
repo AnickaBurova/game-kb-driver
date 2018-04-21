@@ -11,7 +11,7 @@
       - index: 6
         names: [Menu, Menu1, Menu2, Menu3, Menu4, Mode1, Mode2, Mode3]
       - index: 7
-        names: [Mode4, ThumbLeft, ThumbBottom, Thumb, -, MenuLight]
+        names: [Mode4, G23, G24, G25, -, MenuLight]
     analogs:
       - name: X
         index: 1

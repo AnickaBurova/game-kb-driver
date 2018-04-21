@@ -1,0 +1,70 @@
+  - name: Factorio
+    pattern: "*"
+    modes:
+      - name: Mode-1
+        devices:
+          - device: G13
+            # this is a single key press:
+            single:
+                # name of the button from the device
+              #- button: G1
+              # key to press to simulate
+                #cmd: Escape
+                #
+
+            # multiple single keypresses in a pack
+            singles:
+              - button: G # prefix for the button on the device
+                index: 1  # starting index
+                cmds: [Escape, m, b, p, k, l, z] # array of keys
+              - button: G
+                index: 8
+                cmds: [Tab, KP_Enter, q, f, e, r, t]
+              - button: G
+                index: 15
+                cmds: [shift, ctrl, alt, c, space]
+              - button: G
+                index: 20
+                cmds: [KP_Add, KP_Subtract, i]
+
+            # axes on the device
+            axes:
+              - axis: X # name of the axis on the device
+                simple: [a,d] # two inverse keys for on the axis
+              - axis: Y
+                simple: [w,s]
+  - name: Deus-Ex
+    pattern: "*"
+    modes:
+      - name: Mode-1
+        devices:
+          - device: G13
+            # this is a single key press:
+            single:
+                # name of the button from the device
+              #- button: G1
+              # key to press to simulate
+                #cmd: Escape
+                #
+
+            # multiple single keypresses in a pack
+            singles:
+              - button: G # prefix for the button on the device
+                index: 1  # starting index
+                cmds: [Escape, m, semicolon, x, F4, l, F5] # array of keys
+              - button: G
+                index: 8
+                cmds: [Tab, Enter, ctrl, space, shift, p, i]
+              - button: G
+                index: 15
+                cmds: [u, F1, F2, F3, period]
+              - button: G
+                index: 20
+                cmds: [l, f, c, a, b]
+
+            # axes on the device
+            axes:
+              - axis: X # name of the axis on the device
+                simple: [a,e] # two inverse keys for on the axis
+              - axis: Y
+                simple: [comma,o]
