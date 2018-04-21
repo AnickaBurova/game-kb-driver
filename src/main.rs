@@ -51,6 +51,11 @@ fn main() {
                  .help("Profiles file")
                  .takes_value(true)
                  .default_value("profiles.yaml"))
+        .arg(Arg::with_name("profile")
+                 .long("profile")
+                 .short("p")
+                 .takes_value(true)
+                 .help("Which profile to use by default, default the first one, can be just first letters case insensitive"))
         .get_matches();
     let _ = log4rs::init_file(&matches.value_of("log-config").unwrap(), Default::default())
         .unwrap();
@@ -58,10 +63,13 @@ fn main() {
     let mappings = DeviceMaps::new(matches.value_of("devices").unwrap().as_ref()).unwrap();
     let device_inputs = mappings.get_inputs();
     let profiles = Profiles::new(matches.value_of("profiles").unwrap().as_ref(), device_inputs).unwrap();
-    info!("{:?}", profiles);
+    info!("Found profiles:");
+    for ref profile in profiles.profiles.iter() {
+        info!("{}", profile.name);
+    }
     //println!("{:?}", mappings);
 
-    let mut device_manager: DeviceManager = match DeviceManager::new(mappings, profiles) {
+    let mut device_manager: DeviceManager = match DeviceManager::new(mappings, profiles, matches.value_of("profile").take()) {
         Ok(value) => value,
         Err(err) => {
             error!("Failed to create manager: {}", err);
